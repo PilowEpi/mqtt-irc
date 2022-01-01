@@ -1,0 +1,25 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "mqtt catcher",
+  "main": "node server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/PilowEpi/mqtt-irc.git"
+  },
+  "author": "PilowEpi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PilowEpi/mqtt-irc/issues"
+  },
+  "homepage": "https://github.com/PilowEpi/mqtt-irc#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "fs": "^0.0.1-security",
+    "mqtt": "^4.3.2"
+  }
+}
