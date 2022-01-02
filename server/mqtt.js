@@ -4,7 +4,7 @@ const { DB, Client } = require('./db.js');
 
 const host = 'localhost'
 const port = '1883'
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
+const clientId = `workshop_mqtt_server`
 
 const connectUrl = `mqtt://${host}:${port}`
 
@@ -17,7 +17,8 @@ const client = mqtt.connect(connectUrl, {
 })
 
 const topics = ["workshop/ex00",
-    "workshop/ex01"
+    "workshop/register",
+    "workshop/#/sendMessage",
 ];
 
 var db = new DB;
@@ -38,8 +39,12 @@ client.on('message', (topic, payload) => {
     switch (topic) {
         case 'workshop/ex00':
             addEmailToJSON(payload.toString())
-        case 'workshop/ex01':
+        case 'workshop/register':
             registerClient(payload.toString())
+        case 'workshop/receiveMessage':
+            publishMessage(payload.toString())
+        default:
+            complexMessage(topic, payload.toString())
     }
 })
 
@@ -49,7 +54,7 @@ function addEmailToJSON(email) {
     var msg = email.toString() + "\n"
 
     if (!verifyMail(email)) {
-        console.log("Bad email: ", email)
+        console.error("Bad email: ", email)
         return;
     }
     fs.appendFile('email.txt', msg, function (err) {
@@ -67,24 +72,53 @@ function registerClient(data) {
     var new_client = data.split('/')
 
     if (new_client.length != 3) {
-        console.log("Bad registerClient :", data)
+        console.error("Bad registerClient :", data)
         return;
     }
     if (!verifyMail(new_client[0])) {
-        console.log("Bad email: ", new_client[0])
+        console.error("Bad email: ", new_client[0])
         return;
     }
 
     var client = new Client(new_client[0], new_client[1], new_client[2])
     db.addClient(client);
-    printDb()
+    //printDb()
 }
 
-function printDb()
-{
+function printDb() {
     var clients = db.clientList;
 
     clients.forEach(client => {
         console.log(client)
     });
+}
+
+// Exercice 02
+
+function publishMessage(message) {
+    client.publish('workshop/receiveMessage', message);
+}
+
+function sendPrivateMessage(topicArray, message) {
+    if (!db.exist(topicArray[1])) {
+        console.error("Bad nickname: ", topicArray[1])
+        return;
+    }
+    let topic = "workshop/" + topicArray[1] + "/receiveMessage"
+    client.publish(topic, message);
+}
+
+function complexMessage(topic, message) {
+    let data = topic.split('/');
+    let len = data.length();
+
+    if (len != 3) {
+        console.error("Invalid topic: ", topic);
+        return;
+    }
+    // ex02 Task 3
+    if (data[2] == 'sendMessage') {
+        sendPrivateMessage(data, message);
+        return;
+    }
 }

@@ -29,6 +29,8 @@ class DB {
     get clientList() { return this.clientDB; }
     get size() { return this.clientDB.length; }
     
+    exist(name) { return this.clientDB.has(name); }
+    
 }
 
 module.exports =  {
