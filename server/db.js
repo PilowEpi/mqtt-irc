@@ -26,10 +26,18 @@ class DB {
         this.clientDB.push(client);
     }
 
-    get clientList() { return this.clientDB; }
+    get clientList() {
+        return JSON.stringify(this.clientDB);
+    }
     get size() { return this.clientDB.length; }
     
-    exist(name) { return this.clientDB.has(name); }
+    exist(name) {
+        for (var i = 0; i < this.clientDB.length; i++) {
+            if (this.clientDB[i]._nickname === name)
+                return true;
+        }
+        return false;
+    }
     
 }
 

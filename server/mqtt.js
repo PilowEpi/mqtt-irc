@@ -18,7 +18,8 @@ const client = mqtt.connect(connectUrl, {
 
 const topics = ["workshop/ex00",
     "workshop/register",
-    "workshop/#/sendMessage",
+    "workshop/+/sendMessage",
+    "workshop/+/get_list",
 ];
 
 var db = new DB;
@@ -39,10 +40,13 @@ client.on('message', (topic, payload) => {
     switch (topic) {
         case 'workshop/ex00':
             addEmailToJSON(payload.toString())
+            return;
         case 'workshop/register':
             registerClient(payload.toString())
+            return;
         case 'workshop/receiveMessage':
             publishMessage(payload.toString())
+            return;
         default:
             complexMessage(topic, payload.toString())
     }
@@ -95,6 +99,21 @@ function printDb() {
 
 // Exercice 02
 
+function publishList(id, list) {
+    client.publish('workshop/'+ id +'/list', list);
+}
+
+function sendPrivateList(topicArray) {
+    console.log("Send private list")
+    if (!db.exist(topicArray[1])) {
+        console.error("Bad nickname: ", topicArray[1])
+        return;
+    }
+    publishList(topicArray[1], db.clientList.toString());
+}
+
+// Exercice 03
+
 function publishMessage(message) {
     client.publish('workshop/receiveMessage', message);
 }
@@ -110,13 +129,17 @@ function sendPrivateMessage(topicArray, message) {
 
 function complexMessage(topic, message) {
     let data = topic.split('/');
-    let len = data.length();
+    let len = data.length;
 
     if (len != 3) {
         console.error("Invalid topic: ", topic);
         return;
     }
-    // ex02 Task 3
+    if (data[2] == 'get_list') {
+        sendPrivateList(data);
+        return;
+    }
+    // ex03 Task 3
     if (data[2] == 'sendMessage') {
         sendPrivateMessage(data, message);
         return;
