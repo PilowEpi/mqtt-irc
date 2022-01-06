@@ -16,6 +16,7 @@ class Client {
 class DB {
     constructor() {
         this.clientDB = []
+        this.lastClientMessages = []
     }
 
     addClientRaw(mail, nickname, description) {
@@ -26,9 +27,18 @@ class DB {
         this.clientDB.push(client);
     }
 
+    addMessages(messages) {
+        this.lastClientMessages.push(messages);
+    }
+
     get clientList() {
         return JSON.stringify(this.clientDB);
     }
+
+    get lastMessage() {
+        return this.lastClientMessages.pop();
+    }
+
     get size() { return this.clientDB.length; }
     
     exist(name) {

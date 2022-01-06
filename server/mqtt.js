@@ -18,7 +18,7 @@ const client = mqtt.connect(connectUrl, {
 
 const topics = ["workshop/ex00",
     "workshop/register",
-    "workshop/+/sendMessage",
+    "workshop/+/+",
     "workshop/+/get_list",
 ];
 
@@ -119,11 +119,19 @@ function publishMessage(message) {
 }
 
 function sendPrivateMessage(topicArray, message) {
-    if (!db.exist(topicArray[1])) {
-        console.error("Bad nickname: ", topicArray[1])
+    if (!db.exist(topicArray[2])) {
+        console.error("Bad nickname: ", topicArray[2])
         return;
     }
-    let topic = "workshop/" + topicArray[1] + "/receiveMessage"
+    let topic = "workshop/" + topicArray[2] + "/receiveMessage"
+
+    let msg = {
+        sender: topicArray[1].toString(),
+        receiver: topicArray[2].toString(),
+        msg: message.toString()
+    }
+    console.log("New Message : " + msg.toString())
+    db.addMessages(msg)
     client.publish(topic, message);
 }
 
@@ -138,10 +146,16 @@ function complexMessage(topic, message) {
     if (data[2] == 'get_list') {
         sendPrivateList(data);
         return;
-    }
-    // ex03 Task 3
-    if (data[2] == 'sendMessage') {
+    } else if (data[2] != 'receiveMessage') {
+        // ex03 Task 3
         sendPrivateMessage(data, message);
-        return;
     }
+}
+
+function recover() {
+    return db.lastMessage;
+}
+
+module.exports =  {
+    recover
 }
