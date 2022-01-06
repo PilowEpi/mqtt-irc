@@ -41,18 +41,22 @@ client.on('connect', () => {
 
 client.on('message', (topic, payload) => {
     console.log('Received Message:', topic, payload.toString())
-    switch (topic) {
-        case 'workshop/ex00':
-            addEmailToJSON(payload.toString())
-            return;
-        case 'workshop/register':
-            registerClient(payload.toString())
-            return;
-        case 'workshop/receiveMessage':
-            publishMessage(payload.toString())
-            return;
-        default:
-            complexMessage(topic, payload.toString())
+    try {
+        switch (topic) {
+            case 'workshop/ex00':
+                addEmailToJSON(payload.toString())
+                return;
+            case 'workshop/register':
+                registerClient(payload.toString())
+                return;
+            case 'workshop/receiveMessage':
+                publishMessage(payload.toString())
+                return;
+            default:
+                complexMessage(topic, payload.toString())
+        }
+    } catch (e) {
+        console.error(e)
     }
 })
 
