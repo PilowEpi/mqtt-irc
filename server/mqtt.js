@@ -1,6 +1,10 @@
 const mqtt = require('mqtt');
 const fs = require('fs');
 const { DB, Client } = require('./db.js');
+const { array } = require('./badWord.js');
+
+var Filter = require('bad-words');
+var filter = new Filter({ list: array });
 
 const host = 'localhost'
 const port = '1883'
@@ -148,7 +152,7 @@ function complexMessage(topic, message) {
         return;
     } else if (data[2] != 'receiveMessage') {
         // ex03 Task 3
-        sendPrivateMessage(data, message);
+        sendPrivateMessage(data, filter.clean(message));
     }
 }
 
