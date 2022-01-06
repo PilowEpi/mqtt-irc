@@ -13,13 +13,15 @@ const client = new WebSocket('ws://localhost:4242/');
 
 client.addEventListener('open', () => {
     client.addEventListener('message', (message) => {
-        console.log(message.data);
+        initListOfTasks();
+        createMessageCard(JSON.parse(message.data));
     })
 });
 
 let cardContainer;
 
-let createTaskCard = (task) => {
+let createMessageCard = (message) => {
+    console.log(message);
 
     let card = document.createElement('div');
     card.className = 'card shadow cursor-pointer';
@@ -28,19 +30,24 @@ let createTaskCard = (task) => {
     cardBody.className = 'card-body';
 
     let title = document.createElement('h5');
-    title.innerText = task.title;
+    title.innerText = message.sender;
     title.className = 'card-title';
 
-    let color = document.createElement('div');
-    color.innerText = task.color;
-    color.className = 'card-color';
+    let sub = document.createElement('h6');
+    sub.innerText = "from " + message.receiver;
+    sub.className = 'card-subtitle mb-2 text-muted';
+
+    let txt = document.createElement('p');
+    txt.innerText = message.msg;
+    txt.className = 'card-text';
 
 
     cardBody.appendChild(title);
-    cardBody.appendChild(color);
+    cardBody.appendChild(sub);
+    cardBody.appendChild(txt);
     card.appendChild(cardBody);
-    cardContainer.appendChild(card);
-
+    let element = document.getElementById('card-container');
+    cardContainer.insertBefore(card, element.firstChild);
 }
 
 let initListOfTasks = () => {
@@ -50,9 +57,4 @@ let initListOfTasks = () => {
     }
 
     cardContainer = document.getElementById('card-container');
-    tasks.forEach((task) => {
-        createTaskCard(task);
-    });
 };
-
-initListOfTasks();
